@@ -106,19 +106,25 @@ def list_webhooks(api_key):
 
 API_KEY = os.getenv("OPEN_PHONE_API_KEY")
 
-if input("Add?(y/n):") == "y":
-    WEBHOOK_URL = input("URL: ")
-    list_webhooks(api_key=API_KEY)
-    create_transcription_webhook(api_key=API_KEY,webhook_url=WEBHOOK_URL)
-    ##
-    ### For calls webhook
-    create_webhook(API_KEY, WEBHOOK_URL, "calls")
-    ##
-    ### For messages webhook  
-    create_webhook(API_KEY, WEBHOOK_URL, "messages")
-elif input("Delete?(y/n)"):
-    WEBHOOK_URL = input("webhook:")
-    delete_webhook(api_key=API_KEY,webhook_id=WEBHOOK_URL)
-    #
-    list_webhooks(api_key=API_KEY)
-#
+while True:
+    command = input("Option:")
+
+    if command == "add":
+        WEBHOOK_URL = input("URL: ")
+        list_webhooks(api_key=API_KEY)
+        create_transcription_webhook(api_key=API_KEY,webhook_url=WEBHOOK_URL)
+        ##
+        ### For calls webhook
+        create_webhook(API_KEY, WEBHOOK_URL, "calls")
+        ##
+        ### For messages webhook  
+        create_webhook(API_KEY, WEBHOOK_URL, "messages")
+    elif command == "delete":
+        WEBHOOK_URL = input("webhook:")
+        delete_webhook(api_key=API_KEY,webhook_id=WEBHOOK_URL)
+        #
+        list_webhooks(api_key=API_KEY)
+    elif command == "list":
+        list_webhooks(api_key=API_KEY)
+    elif command == "exit":
+        break
