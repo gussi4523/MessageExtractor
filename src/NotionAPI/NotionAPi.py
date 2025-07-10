@@ -15,7 +15,7 @@ class Notion():
         self.DB_Log = DATABASE_ID
         self.DB_Lead = DATABASE_ID_L
 
-    def createPage(self,Time,Text,LeadID,Mark= None,Bold=False,Color="white"):
+    def createPage(self,Time,Text,LeadID,Mark= None,Bold=False,Color="default"):
         properties = {
             "Time": {
                 "title": [
