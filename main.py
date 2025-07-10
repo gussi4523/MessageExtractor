@@ -48,7 +48,7 @@ def webhook():
             print(f"🕒 Ended at: {completed_at}")
 
             if status == "no-answer" and direction == "incoming":
-                notion_API.createPage(completed_at,"Call missed",notion_API.findLead(Phone=caller_number))
+                notion_API.createPage(completed_at,"Call missed",notion_API.findLead(Phone=caller_number),Color="red")
 
         else:
             print("⚠️ Unexpected event_data format:", event_data)

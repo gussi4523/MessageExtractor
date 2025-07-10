@@ -15,7 +15,7 @@ class Notion():
         self.DB_Log = DATABASE_ID
         self.DB_Lead = DATABASE_ID_L
 
-    def createPage(self,Time,Text,LeadID,Mark= None):
+    def createPage(self,Time,Text,LeadID,Mark= None,Bold=False,Color="white"):
         properties = {
             "Time": {
                 "title": [
@@ -33,6 +33,10 @@ class Notion():
                         "type": "text",
                         "text": {
                             "content": Text  # змінна або рядок
+                        },
+                        "annotations": {
+                            "bold": Bold,
+                            "color": Color
                         }
                     }
                 ]
