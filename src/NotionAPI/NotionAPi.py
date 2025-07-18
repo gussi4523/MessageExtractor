@@ -15,7 +15,7 @@ class Notion():
         self.DB_Log = DATABASE_ID
         self.DB_Lead = DATABASE_ID_L
 
-    def createPage(self,Time,Text,LeadID,Mark= None,Bold=False,Color="default"):
+    def createPage(self,Time,Text,LeadID,TeamMate=None,Bold=False,Color="default"):
         properties = {
             "Time": {
                 "title": [
@@ -54,12 +54,12 @@ class Notion():
                 ]
             }
 
-        if Mark:
+        if TeamMate:
             properties["Team"] = {
                 "type": "relation",
                 "relation": [
                     {
-                        "id": Mark
+                        "id": TeamMate
                     }
                 ]
             }
@@ -77,6 +77,26 @@ class Notion():
 
         print("Page created:", page)
         
+
+    def findTeammate(self,Phone):
+
+        response_Phone = self.notion.databases.query(
+            database_id="048ea4ad7c7144e18872e23d0c70f042",
+            filter={
+                "property": "Phone",  # must match the name of your title property
+                "phone_number": {
+                    "equals": Phone
+                }
+            }
+        )
+
+        
+        results = response_Phone.get("results", [])
+        if results:
+            return results[0]["id"]  # ✅ return just the page ID
+        return None  # ❗ no match found
+
+    
     def findLead(self,Phone):
 
         response_Phone = self.notion.databases.query(

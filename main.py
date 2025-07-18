@@ -30,8 +30,11 @@ def webhook():
         sender_number = event_data.get("from")
         message_text = event_data.get("text")
         timestamp = event_data.get("createdAt")
-
-        notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number))
+        teammate=notion_API.findTeammate(sender_number)
+        if  teammate:
+            notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number),teammate)
+        else:
+            notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number))
 
     elif event_type == "call.completed":
         if isinstance(event_data, dict):
@@ -99,7 +102,7 @@ def webhook():
         message_text = event_data.get("text")
         timestamp = event_data.get("createdAt")
 
-        notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number),Mark="1fedfa6161aa802f9b36cdb9a3283a34")
+        notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number),TeamMate="1fedfa6161aa802f9b36cdb9a3283a34")
 
     return '', 200
 
