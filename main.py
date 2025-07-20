@@ -2,7 +2,9 @@
 from flask import Flask, request
 from src.NotionAPI.NotionAPi import Notion
 from src.TextOperations.TextOperator import split_text_n_parts
+from HookSetup import AutoSetup
 
+AutoSetup()
 notion_API = Notion()
 app = Flask(__name__)
 

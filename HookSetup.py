@@ -1,8 +1,10 @@
 import requests
 import urwid
+from pyngrok import ngrok
 import os
 from dotenv import load_dotenv
 load_dotenv()
+API_KEY = os.getenv("OPEN_PHONE_API_KEY")
 
 def create_webhook(api_key, webhook_url, webhook_type="calls", events=None):
     """
@@ -104,27 +106,42 @@ def list_webhooks(api_key):
         print("Failed to list webhooks:", response.status_code, response.text)
         return None
 
-API_KEY = os.getenv("OPEN_PHONE_API_KEY")
-
-while True:
-    command = input("Option:")
-
-    if command == "add":
-        WEBHOOK_URL = input("URL: ")
-        list_webhooks(api_key=API_KEY)
-        create_transcription_webhook(api_key=API_KEY,webhook_url=WEBHOOK_URL)
+def AutoSetup():
+    public_url = ngrok.connect(5000)
+    main_url = public_url + "/openphone-webhook"
+    wed_hooks = list_webhooks(API_KEY)
+    if not any(wh.get("url") == str(main_url) for wh in wed_hooks):
+        print("Webhook not found. Create it now.")
+        create_transcription_webhook(api_key=API_KEY,webhook_url=main_url)
         ##
         ### For calls webhook
-        create_webhook(API_KEY, WEBHOOK_URL, "calls")
+        create_webhook(API_KEY, main_url, "calls")
         ##
         ### For messages webhook  
-        create_webhook(API_KEY, WEBHOOK_URL, "messages")
-    elif command == "delete":
-        WEBHOOK_URL = input("webhook:")
-        delete_webhook(api_key=API_KEY,webhook_id=WEBHOOK_URL)
-        #
-        list_webhooks(api_key=API_KEY)
-    elif command == "list":
-        list_webhooks(api_key=API_KEY)
-    elif command == "exit":
-        break
+        create_webhook(API_KEY, main_url, "messages")
+
+
+
+#
+#while True:
+#    command = input("Option:")
+#
+#    if command == "add":
+#        WEBHOOK_URL = input("URL: ")
+#        list_webhooks(api_key=API_KEY)
+#        create_transcription_webhook(api_key=API_KEY,webhook_url=WEBHOOK_URL)
+#        ##
+#        ### For calls webhook
+#        create_webhook(API_KEY, WEBHOOK_URL, "calls")
+#        ##
+#        ### For messages webhook  
+#        create_webhook(API_KEY, WEBHOOK_URL, "messages")
+#    elif command == "delete":
+#        WEBHOOK_URL = input("webhook:")
+#        delete_webhook(api_key=API_KEY,webhook_id=WEBHOOK_URL)
+#        #
+#        list_webhooks(api_key=API_KEY)
+#    elif command == "list":
+#        list_webhooks(api_key=API_KEY)
+#    elif command == "exit":
+#        break
