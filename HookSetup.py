@@ -108,7 +108,7 @@ def list_webhooks(api_key):
 
 def AutoSetup():
     public_url = ngrok.connect(5000)
-    main_url = str(public_url) + "/openphone-webhook"
+    main_url = str(public_url.public_url) + "/openphone-webhook"
     wed_hooks = list_webhooks(API_KEY)
     if not any(wh.get("url") == str(main_url) for wh in wed_hooks):
         print("Webhook not found. Create it now.")
