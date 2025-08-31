@@ -2,6 +2,7 @@ from notion_client import Client
 from dotenv import load_dotenv
 import json
 import os
+import re
 
 load_dotenv()
 
@@ -96,21 +97,39 @@ class Notion():
             return results[0]["id"]  # ✅ return just the page ID
         return None  # ❗ no match found
 
-    
-    def findLead(self,Phone):
+    @staticmethod
+    def normalize_phone(number: str) -> str:
+        """Remove everything except digits."""
+        return re.sub(r'\D', '', number) if number else ''
 
-        response_Phone = self.notion.databases.query(
-            database_id=self.DB_Lead,
-            filter={
-                "property": "Phone number",  # must match the name of your title property
-                "phone_number": {
-                    "equals": Phone
-                }
-            }
-        )
 
-        
-        results = response_Phone.get("results", [])
-        if results:
-            return results[0]["id"]  # ✅ return just the page ID
-        return None  # ❗ no match found
+    def findLead(self, phone: str):
+        normalized_target = self.normalize_phone(phone)
+        print(normalized_target)
+        all_pages = []
+        next_cursor = None
+
+        # Fetch all pages
+        while True:
+            response = self.notion.databases.query(
+                database_id=self.DB_Lead,
+                page_size=100,
+                start_cursor=next_cursor
+            )
+            all_pages.extend(response["results"])
+            if response.get("has_more"):
+                next_cursor = response["next_cursor"]
+            else:
+                break
+
+        print(all_pages[0]["properties"]["Phone number"]["phone_number"])
+        # Search for matching phone
+        for page in all_pages:
+            phone_prop = self.normalize_phone(page["properties"]["Phone number"]["phone_number"])
+            print(phone_prop)
+            if phone_prop == normalized_target:
+                #number = phone_prop.get("phone_number")
+                #if number and self.normalize_phone(number) == normalized_target:
+                return page["id"]  # ✅ Return the page ID
+
+        return None  # ❗ No match found
