@@ -3,6 +3,13 @@ from flask import Flask, request
 from src.NotionAPI.NotionAPi import Notion
 from src.TextOperations.TextOperator import split_text_n_parts
 from HookSetup import AutoSetup
+import requests
+from dotenv import load_dotenv
+import os
+from datetime import datetime
+
+load_dotenv()
+taskAI_server_url = os.getenv("AI_SERVER_URL")
 
 AutoSetup()
 notion_API = Notion()
@@ -33,10 +40,22 @@ def webhook():
         message_text = event_data.get("text")
         timestamp = event_data.get("createdAt")
         teammate=notion_API.findTeammate(sender_number)
-        if  teammate:
-            notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number),teammate)
+
+        if teammate:
+            notion_API.createPage(timestamp,message_text,teammate)
+            response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
+                                                         "text":message_text,
+                                                         "date": datetime.today(),
+                                                         "IDType":"Lead",
+                                                         "Id":lead})
         else:
-            notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number))
+            lead = notion_API.findLead(Phone=sender_number)
+            notion_API.createPage(timestamp,message_text,lead)
+            response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
+                                                         "text":message_text,
+                                                         "date": datetime.today(),
+                                                         "IDType":"Lead",
+                                                         "Id":lead})
 
     elif event_type == "call.completed":
         if isinstance(event_data, dict):
@@ -52,8 +71,10 @@ def webhook():
             print(f"👤 Caller: {caller_number}")
             print(f"🕒 Ended at: {completed_at}")
 
+            lead = notion_API.findLead(Phone=caller_number)
+
             if status == "no-answer" and direction == "incoming":
-                notion_API.createPage(completed_at,"Call missed",notion_API.findLead(Phone=caller_number),Color="red")
+                notion_API.createPage(completed_at,"Call missed",LeadID=lead,Color="red")
 
         else:
             print("⚠️ Unexpected event_data format:", event_data)
@@ -71,7 +92,9 @@ def webhook():
         print(f"📼 Call recording from {caller_number} at {timestamp}")
         print(f"🔗 Recording URL: {recording_url}")
 
-        notion_API.createPage(timestamp, recording_url, notion_API.findLead(caller_number))
+        lead = notion_API.findLead(Phone=caller_number)
+
+        notion_API.createPage(timestamp, recording_url, lead)
 
     elif event_type == "call.transcript.completed":
         print("📞 call.transcript.completed received")
@@ -79,7 +102,7 @@ def webhook():
         dialogue = event_data.get("dialogue", [])
         call_id = event_data.get("callId")
         created_at = event_data.get("createdAt")
-
+        lead = notion_API.findLead(call_id)
         if not dialogue:
             print("📝 No transcription available (empty dialogue)")
         else:
@@ -88,9 +111,15 @@ def webhook():
                 splited_text = split_text_n_parts(full_text,int(len(full_text)/1000))
                 for text in splited_text:
                     print("📝 Transcription text:", text)
-                    notion_API.createPage(created_at, text, notion_API.findLead(call_id))
+                    notion_API.createPage(created_at, text, lead)
             else:
-                notion_API.createPage(created_at, full_text, notion_API.findLead(call_id))
+                notion_API.createPage(created_at, full_text, lead)
+        response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
+                                                         "text":text,
+                                                         "date": datetime.today(),
+                                                         "IDType":"Lead",
+                                                         "Id":lead})
+        print(response)
 
         
 
@@ -104,7 +133,10 @@ def webhook():
         message_text = event_data.get("text")
         timestamp = event_data.get("createdAt")
 
-        notion_API.createPage(timestamp,message_text,notion_API.findLead(Phone=sender_number),TeamMate="1fedfa6161aa802f9b36cdb9a3283a34")
+        lead = notion_API.findLead(Phone=sender_number)
+
+        notion_API.createPage(timestamp,message_text,lead,TeamMate="1fedfa6161aa802f9b36cdb9a3283a34")
+        print(response)
 
     return '', 200
 
