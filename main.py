@@ -45,7 +45,7 @@ def webhook():
             notion_API.createPage(timestamp,message_text,teammate)
             response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
                                                          "text":message_text,
-                                                         "date": datetime.today(),
+                                                         "date": str(datetime.today()),
                                                          "IDType":"Lead",
                                                          "Id":lead})
         else:
@@ -53,7 +53,7 @@ def webhook():
             notion_API.createPage(timestamp,message_text,lead)
             response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
                                                          "text":message_text,
-                                                         "date": datetime.today(),
+                                                         "date": str(datetime.today()),
                                                          "IDType":"Lead",
                                                          "Id":lead})
 
@@ -116,7 +116,7 @@ def webhook():
                 notion_API.createPage(created_at, full_text, lead)
         response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
                                                          "text":text,
-                                                         "date": datetime.today(),
+                                                         "date": str(datetime.today()),
                                                          "IDType":"Lead",
                                                          "Id":lead})
         print(response)
