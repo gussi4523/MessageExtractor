@@ -49,7 +49,7 @@ def webhook():
                                                          "IDType":"Lead",
                                                          "Id":lead})
         else:
-            lead = notion_API.findLead(Phone=sender_number)
+            lead = notion_API.findLead(phone=sender_number)
             notion_API.createPage(timestamp,message_text,lead)
             response = requests.post(url=taskAI_server_url,json={"event_type":event_type,
                                                          "text":message_text,
@@ -71,7 +71,7 @@ def webhook():
             print(f"👤 Caller: {caller_number}")
             print(f"🕒 Ended at: {completed_at}")
 
-            lead = notion_API.findLead(Phone=caller_number)
+            lead = notion_API.findLead(phone=caller_number)
 
             if status == "no-answer" and direction == "incoming":
                 notion_API.createPage(completed_at,"Call missed",LeadID=lead,Color="red")
@@ -92,7 +92,7 @@ def webhook():
         print(f"📼 Call recording from {caller_number} at {timestamp}")
         print(f"🔗 Recording URL: {recording_url}")
 
-        lead = notion_API.findLead(Phone=caller_number)
+        lead = notion_API.findLead(phone=caller_number)
 
         notion_API.createPage(timestamp, recording_url, lead)
 
@@ -133,7 +133,7 @@ def webhook():
         message_text = event_data.get("text")
         timestamp = event_data.get("createdAt")
 
-        lead = notion_API.findLead(Phone=sender_number)
+        lead = notion_API.findLead(phone=sender_number)
 
         notion_API.createPage(timestamp,message_text,lead,TeamMate="1fedfa6161aa802f9b36cdb9a3283a34")
         print(response)
